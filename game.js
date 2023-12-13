@@ -1,14 +1,14 @@
 kaboom({
     global: true,
     fullscreen: true,
-    scale: 1,
+    scale: 2,
     debug: true,
     clearColor: [0, 0, 0, 1],
 })
 
-loadRoot("https://i.imgur.com/")
-loadSprite("coin", "wbKxhcd.png")
-loadSprite("evil-shroom", "KPO3fR9.png")
+loadRoot('https://i.imgur.com/')
+loadSprite('coin', 'wbKxhcd.png')
+loadSprite('evil-shroom', 'KPO3fR9.png')
 loadSprite('brick', 'pogC9x5.png')
 loadSprite('block', 'M6rwarW.png')
 loadSprite('mario', 'Wb1qfhK.png')
@@ -27,35 +27,51 @@ loadSprite('blue-evil-shroom', 'SvV4ueD.png')
 loadSprite('blue-surprise', 'RMqCc1G.png')
 
 
-scene ("game", () => {
-    layers(["bg", "obj", "ui"], "obj")
-
-    const map = [
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '                                                   ',
-        '====================================    ===========',
-
-        
+scene("game", ({ level, score }) => {
+    layers(['bg', 'obj', 'ui'], 'obj')
+  
+    const maps = [
+      [
+        '                                      ',
+        '                                      ',
+        '                                      ',
+        '                                      ',
+        '                                      ',
+        '     %   =*=%=                        ',
+        '                                      ',
+        '                            -+        ',
+        '                    ^   ^   ()        ',
+        '==============================   =====',
+      ],
     ]
 
     const levelCfg = {
         width: 20,
         height: 20,
-        '=': [sprite('block', solid())]
-    }
+        '=': [sprite('block'), solid()],
+        '$': [sprite('coin'), 'coin'],
+        '%': [sprite('surprise'), solid(), 'coin-surprise'],
+        '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
+        '}': [sprite('unboxed'), solid()],
+        '(': [sprite('pipe-bottom-left'), solid(), scale(0.5)],
+        ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
+        '-': [sprite('pipe-top-left'), solid(), scale(0.5), 'pipe'],
+        '+': [sprite('pipe-top-right'), solid(), scale(0.5), 'pipe'],
+        '^': [sprite('evil-shroom'), solid(), 'dangerous'],
+        '#': [sprite('mushroom'), solid(), 'mushroom', body()],
+        '!': [sprite('blue-block'), solid(), scale(0.5)],
+        '£': [sprite('blue-brick'), solid(), scale(0.5)],
+        'z': [sprite('blue-evil-shroom'), solid(), scale(0.5), 'dangerous'],
+        '@': [sprite('blue-surprise'), solid(), scale(0.5), 'coin-surprise'],
+        'x': [sprite('blue-steel'), solid(), scale(0.5)],
+    
+      }
+    
+      const gameLevel = addLevel(maps[level], levelCfg)
+    
 
-    const gameLevel = addLevel()
 
-// minute 14:27 in video
 
 })
 
-start("game")
+start("game", {level: 0, score: 0})
