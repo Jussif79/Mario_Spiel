@@ -68,10 +68,92 @@ scene("game", ({ level, score }) => {
       }
     
       const gameLevel = addLevel(maps[level], levelCfg)
-    
 
+      const scoreLabel = add([
+        text('test'),
+        pos(30,6),
+        layer('ui'),
+        {
+          value: 'test',
+        }
+      ])
+
+      add([text('level ' + 'test', pos(4,6))])
+
+      function big(){
+        let timer = 0
+        let isBig = false
+        return{
+          update(){
+            if (isBig){
+              timer -= dt()
+              if (timer <= 0){
+                this.smallify
+              }
+            }
+          },
+          isBig(){
+            return isBig
+          },
+          smallify(){
+            this.scale = vec2(1)
+            timer = 0
+            isBig = false
+          },
+          biggify(time){
+            this.scale = vec2(2)
+            timer = time
+            isBig = true
+          }
+        }
+      }
+
+      const player = add ([
+        sprite('mario'), solid(),
+        pos(30,0),
+        body(),
+        big(),
+        origin('bot')
+      ])
+
+      action('mushroom', (m)=> {
+        m.move(10,0)
+      })
+
+      player.on("headbump", (obj) => {
+        if (obj.is('coin-surprise')){
+          gameLevel.spawn('$', obj.gridPos.sub(0,1))
+          destroy(obj)
+          gameLevel.spawn('}', obj.gridPos.sub(0,0))
+        }
+        if (obj.is('mushroom-surprise')){
+          gameLevel.spawn('#', obj.gridPos.sub(0,1))
+          destroy(obj)
+          gameLevel.spawn('}', obj.gridPos.sub(0,0))
+        }
+      })
+
+      const MOVE_SPEED = 120
+      const JUMP_FORCE = 360
+    
+      keyDown('left', () => {
+        player.move(-MOVE_SPEED,0)
+      })
+
+      keyDown('right', () => {
+        player.move(MOVE_SPEED,0)
+      })
+
+      keyPress('space', ()=> {
+        if (player.grounded()){
+          player.jump(JUMP_FORCE)
+        }
+      })
 
 
 })
 
 start("game", {level: 0, score: 0})
+
+
+// Video stopped at 35:17
