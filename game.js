@@ -6,12 +6,15 @@ kaboom({
   clearColor: [0, 0, 0, 1],
 })
 
+//Speed identifiers
 const MOVE_SPEED = 120
 const JUMP_FORCE = 360
 const BIG_JUMP_FORCE = 550
 let CURRENT_JUMP_FORCE = JUMP_FORCE
 const ENEMY_SPEED = 20
+const FALL_DEATH = 400
 
+// Game Logic
 let isJumping = true
 
 loadRoot('https://i.imgur.com/')
@@ -51,6 +54,18 @@ scene("game", ({ level, score }) => {
       '                    ^   ^   ()        ',
       '==============================   =====',
     ],
+    [
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£        @@@@@@              x x        £',
+      '£                          x x x        £',
+      '£                        x x x x  x   -+£',
+      '£               z   z  x x x x x  x   ()£',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ]
   ]
 
   const levelCfg = {
@@ -78,7 +93,7 @@ scene("game", ({ level, score }) => {
   const gameLevel = addLevel(maps[level], levelCfg)
 
   const scoreLabel = add([
-    text('score'),
+    text(score),
     pos(30, 6),
     layer('ui'),
     {
@@ -86,7 +101,7 @@ scene("game", ({ level, score }) => {
     }
   ])
 
-  add([text('level ' + 'test', pos(4, 6))])
+  add([text('level ' + parseInt(level + 1)), pos(40, 6)])
 
   function big() {
     let timer = 0
@@ -167,6 +182,23 @@ scene("game", ({ level, score }) => {
   })
 
 
+//action -> Checking something every frame second
+player.action(() =>{
+  camPos(player.pos)
+  if (player.pos.y >= FALL_DEATH){
+    go('lose', {score: scoreLabel.value})
+  }
+})
+
+player.collides('pipe', () => {
+  keyPress('down', () =>{
+    go ('game',{
+      level: (level + 1) % maps.length,
+      score: scoreLabel.value
+    })
+  })
+})
+
   keyDown('left', () => {
     player.move(-MOVE_SPEED, 0)
   })
@@ -196,6 +228,3 @@ scene('lose', ({ score }) => {
 })
 
 start("game", { level: 0, score: 0 })
-
-
-// stopped at min 45:33
