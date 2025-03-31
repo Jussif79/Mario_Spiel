@@ -37,7 +37,6 @@ loadSprite('blue-steel', 'gqVoI2b.png')
 loadSprite('blue-evil-shroom', 'SvV4ueD.png')
 loadSprite('blue-surprise', 'RMqCc1G.png')
 
-
 scene("game", ({ level, score }) => {
   layers(['bg', 'obj', 'ui'], 'obj')
 
@@ -65,6 +64,102 @@ scene("game", ({ level, score }) => {
       '£                        x x x x  x   -+£',
       '£               z   z  x x x x x  x   ()£',
       '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ],
+    [
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '            @   @   @                 ',
+      '                                      ',
+      '                                 -+   ',
+      '                      ^  z       ()   ',
+      '======================================',
+    ],
+    [
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£      @@@@                            £',
+      '£                                      £',
+      '£                    -+                £',
+      '£        z z         ()                £',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ],
+    [
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '   %%%                                ',
+      '                                      ',
+      '                          -+          ',
+      '               ^ ^ ^ ^    ()          ',
+      '======================================',
+    ],
+    [
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£             @@@@@@@@@                £',
+      '£                                      £',
+      '£        -+                            £',
+      '£        ()       z z z z z z          £',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ],
+    [
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '        * * * * *                     ',
+      '                                      ',
+      '                    -+                ',
+      '         ^ ^ ^ ^ ^  ()                ',
+      '===    ===============================',
+    ],
+    [
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£   @@@@@@@@@@@@@@@@@@@                £',
+      '£                                      £',
+      '£               -+                     £',
+      '£               ()  z z z z z z z      £',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ],
+    [
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '   % % % % % % % % %                  ',
+      '                                      ',
+      '                         -+           ',
+      '              ^ ^ ^ ^ ^  ()           ',
+      '======================================',
+    ],
+    [
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£                                      £',
+      '£  @@@@@@@@@@@@@@@@@@@@@@@@@@@         £',
+      '£                                      £',
+      '£          -+                          £',
+      '£          ()   z z z z z z z z z      £',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
     ]
   ]
 
@@ -87,7 +182,6 @@ scene("game", ({ level, score }) => {
     'z': [sprite('blue-evil-shroom'), solid(), scale(0.5), 'dangerous'],
     '@': [sprite('blue-surprise'), solid(), scale(0.5), 'coin-surprise'],
     'x': [sprite('blue-steel'), solid(), scale(0.5)],
-
   }
 
   const gameLevel = addLevel(maps[level], levelCfg)
@@ -181,23 +275,25 @@ scene("game", ({ level, score }) => {
     }
   })
 
+  player.action(() => {
+    camPos(player.pos)
+    if (player.pos.y >= FALL_DEATH) {
+      go('lose', { score: scoreLabel.value })
+    }
+  })
 
-//action -> Checking something every frame second
-player.action(() =>{
-  camPos(player.pos)
-  if (player.pos.y >= FALL_DEATH){
-    go('lose', {score: scoreLabel.value})
-  }
-})
-
-player.collides('pipe', () => {
-  keyPress('down', () =>{
-    go ('game',{
-      level: (level + 1) % maps.length,
-      score: scoreLabel.value
+  player.collides('pipe', () => {
+    keyPress('down', () => {
+      if (level < maps.length - 1) {
+        go('game', {
+          level: level + 1,
+          score: scoreLabel.value
+        })
+      } else {
+        go('gameEnd', { score: scoreLabel.value })
+      }
     })
   })
-})
 
   keyDown('left', () => {
     player.move(-MOVE_SPEED, 0)
@@ -208,7 +304,7 @@ player.collides('pipe', () => {
   })
 
   player.action(() => {
-    if (player.grounded()){
+    if (player.grounded()) {
       isJumping = false
     }
   })
@@ -219,12 +315,42 @@ player.collides('pipe', () => {
       player.jump(CURRENT_JUMP_FORCE)
     }
   })
-
-
 })
 
 scene('lose', ({ score }) => {
-  add([text(score, 32), origin('center'), pos(width() / 2, height() / 2)])
+  add([
+    text('Game Over\nScore: ' + score, 32), 
+    origin('center'), 
+    pos(width() / 2, height() / 2)
+  ])
+  
+  add([
+    text('Press space to restart', 16),
+    origin('center'),
+    pos(width() / 2, height() / 2 + 50)
+  ])
+  
+  keyPress('space', () => {
+    go('game', { level: 0, score: 0 })
+  })
+})
+
+scene('gameEnd', ({ score }) => {
+  add([
+    text('Congratulations!\nYou completed all levels!\nFinal Score: ' + score, 32),
+    origin('center'),
+    pos(width() / 2, height() / 2 - 50)
+  ])
+  
+  add([
+    text('Press space to play again', 16),
+    origin('center'),
+    pos(width() / 2, height() / 2 + 50)
+  ])
+  
+  keyPress('space', () => {
+    go('game', { level: 0, score: 0 })
+  })
 })
 
 start("game", { level: 0, score: 0 })
