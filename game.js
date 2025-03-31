@@ -241,14 +241,30 @@ scene("game", ({ level, score }) => {
 
   player.on("headbump", (obj) => {
     if (obj.is('coin-surprise')) {
-      gameLevel.spawn('$', obj.gridPos.sub(0, 1))
+      // Auto-collect coin
+      scoreLabel.value++
+      scoreLabel.text = scoreLabel.value
       destroy(obj)
       gameLevel.spawn('}', obj.gridPos.sub(0, 0))
+      
+      // Create invisible hole
+      add([
+        pos(obj.pos.add(0, 20)),
+        area({ width: 20, height: 40 }),
+        'hole'
+      ])
     }
     if (obj.is('mushroom-surprise')) {
       gameLevel.spawn('#', obj.gridPos.sub(0, 1))
       destroy(obj)
       gameLevel.spawn('}', obj.gridPos.sub(0, 0))
+      
+      // Create invisible hole
+      add([
+        pos(obj.pos.add(0, 20)),
+        area({ width: 20, height: 40 }),
+        'hole'
+      ])
     }
   })
 
@@ -257,14 +273,15 @@ scene("game", ({ level, score }) => {
     player.biggify(6)
   })
 
-  player.collides('coin', (c) => {
-    destroy(c)
-    scoreLabel.value++
-    scoreLabel.text = scoreLabel.value
-  })
-
   action('dangerous', (d) => {
     d.move(-ENEMY_SPEED, 0)
+    
+    // Check if enemy is touching any hole
+    get('hole').forEach(hole => {
+      if (d.pos.dist(hole.pos) < 30) {
+        destroy(d)
+      }
+    })
   })
 
   player.collides('dangerous', (d) => {
